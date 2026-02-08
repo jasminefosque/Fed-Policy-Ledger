@@ -65,18 +65,26 @@ def doc_id_from_url(url: str, prefix: Optional[str] = None) -> str:
     """Generate a document ID from a URL with optional prefix.
     
     This is a convenience wrapper around generate_doc_id that allows
-    adding a prefix to the generated ID for categorization purposes.
+    adding a prefix to the generated ID for internal categorization purposes.
+    
+    **Note**: Adding a prefix creates an ID longer than 16 characters. The base
+    16-character ID remains stable; the prefix is for internal organization only.
+    When storing documents, consider using the base 16-char ID from generate_doc_id()
+    for filenames to maintain the stable ID design principle.
     
     Args:
         url: The source URL of the document.
         prefix: Optional prefix to prepend to the doc_id (e.g., "fomc_", "speech_").
+                This is for internal categorization only.
     
     Returns:
         The generated document ID, optionally prefixed.
     
     Examples:
+        >>> doc_id_from_url("https://example.com/doc")
+        '8a3f9c2e1b4d7a6c'
         >>> doc_id_from_url("https://example.com/doc", prefix="fomc_")
-        'fomc_8a3f9c2e1b4d7a6c'
+        'fomc_8a3f9c2e1b4d7a6c'  # Note: This is 21 chars, prefix is for categorization
     """
     doc_id = generate_doc_id(url)
     

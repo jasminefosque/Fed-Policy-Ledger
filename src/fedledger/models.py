@@ -9,6 +9,19 @@ from datetime import datetime
 from typing import Optional, List
 
 
+def _default_timestamp() -> datetime:
+    """Generate a default UTC timestamp.
+    
+    Returns UTC-aware datetime for Python 3.11+ or naive UTC datetime for earlier versions.
+    
+    Returns:
+        Current UTC timestamp.
+    """
+    if hasattr(datetime, 'UTC'):
+        return datetime.now(datetime.UTC)
+    return datetime.utcnow()
+
+
 @dataclass
 class Document:
     """Base representation of a Federal Reserve document.
@@ -123,4 +136,4 @@ class FetchResult:
     error: Optional[str] = None
     status_code: Optional[int] = None
     content_type: Optional[str] = None
-    timestamp: datetime = field(default_factory=lambda: datetime.now(datetime.UTC) if hasattr(datetime, 'UTC') else datetime.utcnow())
+    timestamp: datetime = field(default_factory=_default_timestamp)
