@@ -273,11 +273,19 @@ class Pipeline:
             if col in df.columns:
                 df[col] = pd.to_datetime(df[col], utc=True)
         
-        # Get schema
+        # Get schema and add missing nullable columns
         schema = get_schema_for_doc_type(doc_type.value)
         
-        # Write to Parquet
-        table = pa.Table.from_pandas(df, schema=schema, safe=False)
+        # Add missing nullable columns with None
+        for field in schema:
+            if field.name not in df.columns and field.nullable:
+                df[field.name] = None
+        
+        # Reorder columns to match schema
+        df = df[[field.name for field in schema if field.name in df.columns]]
+        
+        # Write to Parquet without strict schema enforcement
+        table = pa.Table.from_pandas(df, preserve_index=False)
         
         output_path.parent.mkdir(parents=True, exist_ok=True)
         pq.write_table(table, output_path)
